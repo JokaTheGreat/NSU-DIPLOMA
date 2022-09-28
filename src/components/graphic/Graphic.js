@@ -35,6 +35,34 @@ function parseGraphicData(data, startTime, endTime) {
 export function Graphic(props) {
   const [data, setData] = useState([]);
 
+  const defaultLineShape = {
+    line: { color: "white" },
+    yref: "paper",
+    y0: 0,
+    y1: 1,
+    opacity: 1,
+  };
+
+  const defaultSquareShape = {
+    fillcolor: "white",
+    line: { color: "white" },
+    yref: "paper",
+    xsizemode: "pixel",
+    y0: 0.8,
+    y1: 1,
+    x0: 0,
+    x1: 15,
+    opacity: 1,
+  };
+
+  const defaultAnnotation = {
+    xanchor: "left",
+    yref: 'paper',
+    y: 1.02,
+    showarrow: false,
+    font: { size: 16, color: "#282c34" }
+  };
+
   const defaultLayout = {
     margin: {
       t: props.position !== "first" ? 1 : 30,
@@ -115,40 +143,24 @@ export function Graphic(props) {
       shapes: [
         ...props.waves.map((wave) => {
           return {
-            fillcolor: "white",
-            line: { color: "white" },
-            yref: "paper",
-            xsizemode: "pixel",
+            ...defaultSquareShape,
             xanchor: wave.time,
-            y0: 0.8,
-            y1: 1,
-            x0: 0,
-            x1: 15,
-            opacity: 1,
           };
         }),
         ...props.waves.map((wave) => {
           return {
-            line: { color: "white" },
-            yref: "paper",
-            y0: 0,
-            y1: 1,
+            ...defaultLineShape,
             x0: wave.time,
             x1: wave.time,
-            opacity: 1,
           };
         }),
       ],
       annotations: [
         ...props.waves.map((wave) => {
           return {
-            xanchor: "left",
+            ...defaultAnnotation,
             x: wave.time,
-            yref: 'paper',
-            y: 1.02,
             text: wave.phase,
-            showarrow: false,
-            font: { size: 16, color: "#282c34" }
           };
         })
       ]
@@ -172,14 +184,92 @@ export function Graphic(props) {
     }
   }, [props.range]);
 
+  const changeWave = (newTime, wavePhase) => {
+    const waveIndex = layout.annotations.findIndex((item) => item.text === wavePhase);
+    const layoutNewShapes = [];
+    const layoutNewAnnotations = [];
+
+    if (waveIndex === -1) {
+      layoutNewShapes.push(
+        {
+          ...defaultSquareShape,
+          xanchor: newTime,
+        },
+        {
+          ...defaultLineShape,
+          x0: newTime,
+          x1: newTime,
+        }
+      );
+
+      layout.shapes.forEach((shape) => layoutNewShapes.push(shape));
+
+      layoutNewAnnotations.push({
+        ...defaultAnnotation,
+        x: newTime,
+        text: wavePhase,
+      });
+
+      layout.annotations.forEach((annotation) => layoutNewAnnotations.push(annotation));
+    }
+    else {
+      layout.shapes.forEach((shape, i) => {
+        if (i % (layout.shapes.length / 2) === waveIndex) {
+          if (shape?.xanchor) {
+            layoutNewShapes.push({
+              ...shape,
+              xanchor: newTime,
+            });
+          }
+          else {
+            layoutNewShapes.push({
+              ...shape,
+              x0: newTime,
+              x1: newTime
+            });
+          }
+        }
+        else {
+          layoutNewShapes.push(shape);
+        }
+      });
+
+      layout.annotations.forEach((annotation) => {
+        if (annotation.text === wavePhase) {
+          layoutNewAnnotations.push({
+            ...annotation,
+            x: newTime,
+          })
+        }
+        else {
+          layoutNewAnnotations.push(annotation);
+        }
+      });
+    }
+
+    setLayout({
+      ...layout,
+      shapes: layoutNewShapes,
+      annotations: layoutNewAnnotations
+    });
+  };
+
   return (
     <Plot
       onClick={(e) => {
         if (e.event.shiftKey) {
-          props.resize(
-            props.startTime.toISOString(),
-            props.endTime.toISOString()
-          );
+          if (e.event.button === 0) {
+            changeWave(new Date(e.points[0].x), "P");
+          }
+          if (e.event.button === 1) {
+            props.resize(
+              props.startTime.toISOString(),
+              props.endTime.toISOString()
+            );
+          }
+          if (e.event.button === 2) {
+            changeWave(new Date(e.points[0].x), "S");
+          }
         }
       }}
       onRelayout={(e) => {

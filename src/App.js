@@ -96,7 +96,7 @@ export default function App() {
                 wave.channel === item.channel
             )
             .map((wave) => {
-              return { phase: wave.phase, time: wave.time };
+              return { phase: wave.phase, time: new Date(new Date(wave.time).getTime() - SERVER_TIME_OFFSET) };
             }),
         };
       })
