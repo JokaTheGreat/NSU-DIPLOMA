@@ -1,65 +1,7 @@
 import { useState, useEffect } from "react";
-import { Graphic, Sidebar } from "./components";
+import { Graphic, Sidebar, Button } from "./components";
 import "./App.css";
-import properties from "./properties";
-
-async function getStationsData() {
-  const url = properties.SERVER + "station/1/query?level=channel";
-
-  const response = await fetch(url);
-  const data = await response.text();
-
-  return data;
-}
-
-function parseStationsData(data) {
-  const stationsData = [];
-
-  const xml = new DOMParser().parseFromString(data, "text/xml");
-  const networks = xml.getElementsByTagName("Network");
-
-  for (let network of networks) {
-    if (network.nodeName !== "Network") {
-      continue;
-    }
-
-    const networkCode = network.getAttribute("code");
-    if (networkCode !== "KA") {
-      continue;
-    }
-
-    const stations = network.children;
-
-    for (let station of stations) {
-      if (station.nodeName !== "Station") {
-        continue;
-      }
-
-      const stationCode = station.getAttribute("code");
-      const channels = station.children;
-
-      for (let channel of channels) {
-        if (channel.nodeName !== "Channel") {
-          continue;
-        }
-
-        const channelCode = channel.getAttribute("code");
-        stationsData.push({
-          network: networkCode,
-          station: stationCode,
-          channel: channelCode,
-        });
-      }
-    }
-  }
-
-  return stationsData;
-}
-
-async function getStations() {
-  const data = await getStationsData();
-  return parseStationsData(data);
-}
+import { getStationsData, parseStationsData } from "./utils";
 
 export default function App() {
   const [graphicsData, setGraphicsData] = useState([]);
@@ -117,15 +59,19 @@ export default function App() {
   };
 
   useEffect(async () => {
-    stationsId = await getStations();
+    const data = await getStationsData();
+    stationsId = parseStationsData(data);
     setDefaultGraphicsData();
   }, []);
 
   return (
     <div className="app">
-      <h2 className="app__title">Seisgraphs: </h2>
+      <header className="app__header">
+        <h2 className="app__title">Seisgraphs: </h2>
+        <Button></Button>
+      </header>
       <main className="app__content">
-        {<Sidebar onClickCallback={setEventGraphicsData} />}
+        <Sidebar onClickCallback={setEventGraphicsData} />
         <div className="app__graphics">
           {graphicsData.map((item) => {
             return (

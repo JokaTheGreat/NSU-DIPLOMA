@@ -1,36 +1,7 @@
-import Plot from "react-plotly.js";
-import * as seisplotjs from "seisplotjs";
 import { useState, useEffect } from "react";
 import "./Graphic.css";
-import properties from "../../properties";
-
-async function getGraphicData(network, station, channel, startTime, endTime) {
-  const url =
-    properties.SERVER +
-    `dataselect/1/query?` +
-    `network=${network}&station=${station}&channel=${channel}` +
-    `&starttime=${startTime.toISOString()}&endtime=${endTime.toISOString()}`;
-
-  const response = await fetch(url);
-  const data = await response.arrayBuffer();
-
-  return data;
-}
-
-function parseGraphicData(data, startTime, endTime) {
-  const dataRecords = seisplotjs.miniseed.parseDataRecords(data);
-  const seismogram = seisplotjs.miniseed.merge(dataRecords);
-
-  const x = [];
-  const y = seismogram._segmentArray[0].y;
-  const step = (endTime - startTime) / y.length;
-
-  y.forEach((item, i) => {
-    x.push(new Date(Math.round(startTime.getTime() + step * i)));
-  });
-
-  return { x, y };
-}
+import Plot from "react-plotly.js";
+import { getGraphicData, parseGraphicData } from "../../utils";
 
 export function Graphic(props) {
   const [data, setData] = useState([]);

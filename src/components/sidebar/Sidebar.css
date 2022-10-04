@@ -1,5 +1,5 @@
 .sidebar {
-    width: 10%;
+    width: 12%;
     min-height: 500px;
     height: fit-content;
     margin-top: 30px;
@@ -13,6 +13,9 @@
     border: 1px solid #61dafb;
     cursor: pointer;
     transition: .2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .sidebar__element_active {
