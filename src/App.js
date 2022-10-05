@@ -60,6 +60,11 @@ export default function App() {
 
   useEffect(async () => {
     const data = await getStationsData();
+    if (!data) {
+      alert("server has no stations data");
+      return;
+    }
+
     stationsId = parseStationsData(data);
     setDefaultGraphicsData();
   }, []);
@@ -68,7 +73,7 @@ export default function App() {
     <div className="app">
       <header className="app__header">
         <h2 className="app__title">Seisgraphs: </h2>
-        <Button></Button>
+        <Button />
       </header>
       <main className="app__content">
         <Sidebar onClickCallback={setEventGraphicsData} />

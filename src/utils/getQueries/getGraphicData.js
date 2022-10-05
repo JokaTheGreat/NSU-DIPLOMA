@@ -8,7 +8,10 @@ export async function getGraphicData(network, station, channel, startTime, endTi
         `&starttime=${startTime.toISOString()}&endtime=${endTime.toISOString()}`;
 
     const response = await fetch(url);
-    const data = await response.arrayBuffer();
+    if (!response.ok) {
+        return null;
+    }
 
+    const data = await response.arrayBuffer();
     return data;
 }

@@ -8,6 +8,11 @@ export function Sidebar({ onClickCallback }) {
 
   const setDataAsync = async () => {
     const data = await getEventData();
+    if (!data) {
+      alert("server has no event data");
+      return; 
+    }
+    
     setData(parseEventData(data));
   };
 
@@ -16,7 +21,7 @@ export function Sidebar({ onClickCallback }) {
   }, []);
 
   useEffect(() => {
-    if (selectedEventId < 0) {
+    if (selectedEventId < 0 || !data || !data[selectedEventId]) {
       return;
     }
 
