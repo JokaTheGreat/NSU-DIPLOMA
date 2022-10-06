@@ -9,6 +9,5 @@ export async function getEventData() {
     }
 
     const data = await response.text();
-    //return data;
-    return properties.eventsString;
+    return data;
 }

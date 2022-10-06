@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Graphic, Sidebar, Button } from "./components";
+import { Graphic, Sidebar, Button, Vadati } from "./components";
 import "./App.css";
 import { getStationsData, parseStationsData } from "./utils";
 
@@ -13,6 +13,21 @@ export default function App() {
         return {
           ...item,
           range: [xaxisRangeZero, xaxisRangeOne],
+        };
+      })
+    );
+  };
+
+  const onChangeWave = (newTime, phase, graphicKey) => {
+    setGraphicsData(
+      graphicsData.map(item => {
+        if (item.key !== graphicKey) {
+          return item;
+        }
+
+        return {
+          ...item,
+          waves: [...item.waves.filter(wave => wave.phase !== phase), { phase: phase, time: newTime }],
         };
       })
     );
@@ -78,24 +93,29 @@ export default function App() {
       <main className="app__content">
         <Sidebar onClickCallback={setEventGraphicsData} />
         <div className="app__graphics">
-          {graphicsData.map((item) => {
-            return (
-              <Graphic
-                key={item.key}
-                network={item.network}
-                station={item.station}
-                channel={item.channel}
-                position={item.position}
-                startTime={item.startTime}
-                endTime={item.endTime}
-                waves={item.waves}
-                resize={onGraphicsResize}
-                range={item.range}
-              />
-            );
-          })}
+          {graphicsData.map(item =>
+            <Graphic
+              key={item.key}
+              id={item.key}
+              network={item.network}
+              station={item.station}
+              channel={item.channel}
+              position={item.position}
+              startTime={item.startTime}
+              endTime={item.endTime}
+              waves={item.waves}
+              resize={onGraphicsResize}
+              changeWave={onChangeWave}
+              range={item.range}
+            />
+          )}
         </div>
       </main>
+      <Vadati
+        times={graphicsData.map((item) => {
+          return { startTime: item.startTime, waves: item.waves };
+        })}
+      />
     </div>
   );
 }

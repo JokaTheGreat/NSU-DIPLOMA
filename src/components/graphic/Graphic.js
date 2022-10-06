@@ -228,6 +228,8 @@ export function Graphic(props) {
       shapes: layoutNewShapes,
       annotations: layoutNewAnnotations
     });
+
+    props.changeWave(newTime, wavePhase, props.id);
   };
 
   return (
