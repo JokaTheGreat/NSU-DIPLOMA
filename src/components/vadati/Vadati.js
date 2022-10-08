@@ -64,7 +64,7 @@ export function Vadati({ times }) {
 
     return (
         <>
-            <h2>Vadati graphic:</h2>
+            <h2>Wadati diagram:</h2>
             <div className="vadati-graph__container">
                 <Plot
                     className="vadati-graph"
