@@ -27,7 +27,10 @@ export default function App() {
 
         return {
           ...item,
-          waves: [...item.waves.filter(wave => wave.phase !== phase), { phase: phase, time: newTime }],
+          waves: [
+            ...item.waves.filter(wave => wave.phase !== phase),
+            { phase: phase, time: newTime }
+          ],
         };
       })
     );
@@ -45,6 +48,7 @@ export default function App() {
           ...item,
           startTime: startTime,
           endTime: endTime,
+          range: [startTime, endTime],
           waves: waves
             .filter(
               (wave) =>

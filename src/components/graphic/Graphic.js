@@ -60,6 +60,7 @@ export function Graphic(props) {
       gridcolor: "#61dafb44",
       showticklabels: props.position === "" ? false : true,
       side: props.position !== "first" ? "bottom" : "top",
+      autorange: false,
     },
   };
 
@@ -70,8 +71,8 @@ export function Graphic(props) {
       ? "graphic__wrapper"
       : "graphic__wrapper_" + props.position;
 
-  useEffect(async () => {
-    if (!props.startTime || !props.endTime) {
+  const setNewData = async () => {
+    if (!props.startTime || !props.endTime || !props.network || !props.station || !props.channel) {
       return;
     }
 
@@ -83,12 +84,8 @@ export function Graphic(props) {
       props.endTime
     );
 
-    if (!seisData) {
-      alert("server has no seis data");
-      return; 
-    }
-    
     if (!seisData.byteLength) {
+      alert("server has no seis data");
       setData([]);
       return;
     }
@@ -107,7 +104,11 @@ export function Graphic(props) {
         },
       },
     ]);
-  }, [props.startTime, props.endTime]);
+  };
+
+  useEffect(() => {
+    setNewData();
+  }, [props.startTime, props.endTime, props.channel, props.station, props.network]);
 
   useEffect(() => {
     if (!props.waves) {
@@ -143,115 +144,54 @@ export function Graphic(props) {
     });
   }, [props.waves]);
 
-  const setRange = (newRange, autorange) => {
+  const setRange = (newRange) => {
     setLayout({
       ...layout,
-      xaxis: { ...layout.xaxis, autorange: autorange, range: newRange },
+      xaxis: { ...layout.xaxis, range: newRange },
     });
   };
 
   useEffect(() => {
-    if (props.range) {
-      if (props.range[0] === props.startTime.toISOString()) {
-        setRange(props.range, true);
-        return;
-      }
-      setRange(props.range, false);
+    if (!props.range) {
+      return;
     }
+
+    setRange(props.range);
   }, [props.range]);
-
-  const changeWave = (newTime, wavePhase) => {
-    const waveIndex = layout.annotations.findIndex((item) => item.text === wavePhase);
-    const layoutNewShapes = [];
-    const layoutNewAnnotations = [];
-
-    if (waveIndex === -1) {
-      layoutNewShapes.push(
-        {
-          ...defaultSquareShape,
-          xanchor: newTime,
-        },
-        {
-          ...defaultLineShape,
-          x0: newTime,
-          x1: newTime,
-        }
-      );
-
-      layout.shapes.forEach((shape) => layoutNewShapes.push(shape));
-
-      layoutNewAnnotations.push({
-        ...defaultAnnotation,
-        x: newTime,
-        text: wavePhase,
-      });
-
-      layout.annotations.forEach((annotation) => layoutNewAnnotations.push(annotation));
-    }
-    else {
-      layout.shapes.forEach((shape, i) => {
-        if (i % (layout.shapes.length / 2) === waveIndex) {
-          if (shape?.xanchor) {
-            layoutNewShapes.push({
-              ...shape,
-              xanchor: newTime,
-            });
-          }
-          else {
-            layoutNewShapes.push({
-              ...shape,
-              x0: newTime,
-              x1: newTime
-            });
-          }
-        }
-        else {
-          layoutNewShapes.push(shape);
-        }
-      });
-
-      layout.annotations.forEach((annotation) => {
-        if (annotation.text === wavePhase) {
-          layoutNewAnnotations.push({
-            ...annotation,
-            x: newTime,
-          })
-        }
-        else {
-          layoutNewAnnotations.push(annotation);
-        }
-      });
-    }
-
-    setLayout({
-      ...layout,
-      shapes: layoutNewShapes,
-      annotations: layoutNewAnnotations
-    });
-
-    props.changeWave(newTime, wavePhase, props.id);
-  };
 
   return (
     <Plot
       onClick={(e) => {
-        if (e.event.shiftKey) {
-          if (e.event.button === 0) {
-            changeWave(new Date(e.points[0].x), "P");
-          }
-          if (e.event.button === 1) {
-            props.resize(
-              props.startTime.toISOString(),
-              props.endTime.toISOString()
-            );
-          }
-          if (e.event.button === 2) {
-            changeWave(new Date(e.points[0].x), "S");
-          }
+        if (e.event.shiftKey && e.event.button === 0) {
+          props.changeWave(new Date(e.points[0].x), "P", props.id);
+        }
+
+        if (e.event.ctrlKey && e.event.button === 0) {
+          props.changeWave(new Date(e.points[0].x), "S", props.id);
         }
       }}
       onRelayout={(e) => {
-        props.resize(e["xaxis.range[0]"], e["xaxis.range[1]"]);
+        const zeroPoint = e["xaxis.range[0]"];
+        const firstPoint = e["xaxis.range[1]"];
+
+        if (!zeroPoint || !firstPoint) {
+          return;
+        }
+
+        if (typeof zeroPoint === 'number' && isFinite(zeroPoint)) {
+          props.resize(zeroPoint, firstPoint);
+          return;
+        }
+
+        props.resize(new Date(zeroPoint), new Date(firstPoint));
+      }}
+      onDoubleClick={() => {
+        if (!props.startTime || !props.endTime) {
+          props.resize(-1, 6);
+          return;
+        }
+
+        props.resize(props.startTime, props.endTime);
       }}
       className={classname}
       data={data}
@@ -266,7 +206,7 @@ export function Graphic(props) {
           "autoScale2d",
         ],
         displaylogo: false,
-        doubleClick: false, //не работает
+        doubleClick: false,
         scrollZoom: true,
       }}
     />

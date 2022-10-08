@@ -6,7 +6,7 @@ export function Sidebar({ onClickCallback }) {
   const [data, setData] = useState([]);
   const [selectedEventId, setSelectedEventId] = useState(-1);
 
-  const setDataAsync = async () => {
+  const setNewData = async () => {
     const data = await getEventData();
     if (!data) {
       alert("server has no event data");
@@ -17,7 +17,7 @@ export function Sidebar({ onClickCallback }) {
   };
 
   useEffect(() => {
-    setDataAsync();
+    setNewData();
   }, []);
 
   useEffect(() => {
