@@ -6,6 +6,57 @@ import { getGraphicData, parseGraphicData } from "../../utils";
 export function Graphic(props) {
   const [data, setData] = useState([]);
 
+  const LINE_COLORS = ['#61dafb', '#227D22', '#BF2324'];
+
+  const defaultYGridShape = {
+    line: { color: LINE_COLORS[0] },
+    xref: 'paper',
+    yref: 'paper',
+    x0: 0,
+    x1: 1,
+  };
+
+  const defaultXGridShape = {
+    line: { color: LINE_COLORS[0] },
+    xref: 'paper',
+    yref: 'paper',
+    y0: 0,
+    y1: 1,
+  };
+
+  const defaultGridShape = [
+    {
+      ...defaultYGridShape,
+      y0: 0,
+      y1: 0,
+    },
+    {
+      ...defaultYGridShape,
+      y0: 0.33,
+      y1: 0.33,
+    },
+    {
+      ...defaultYGridShape,
+      y0: 0.66,
+      y1: 0.66,
+    },
+    {
+      ...defaultYGridShape,
+      y0: 1,
+      y1: 1,
+    },
+    {
+      ...defaultXGridShape,
+      x0: 0,
+      x1: 0,
+    },
+    {
+      ...defaultXGridShape,
+      x0: 1,
+      x1: 1,
+    },
+  ];
+
   const defaultLineShape = {
     line: { color: "white" },
     yref: "paper",
@@ -19,17 +70,31 @@ export function Graphic(props) {
     line: { color: "white" },
     yref: "paper",
     xsizemode: "pixel",
-    y0: 0.8,
+    y0: 0.85,
     y1: 1,
     x0: 0,
     x1: 15,
     opacity: 1,
   };
 
+  const graphTitleAnnotation = {
+    text: `${props.network}.${props.station}`,
+    xref: "paper",
+    yref: "paper",
+    x: 1.04,
+    y: 0,
+    textangle: "-90",
+    showarrow: false,
+    font: {
+      color: LINE_COLORS[0],
+      size: 16,
+    }
+  };
+
   const defaultAnnotation = {
     xanchor: "left",
-    yref: 'paper',
-    y: 1.02,
+    yref: "paper",
+    y: 1,
     showarrow: false,
     font: { size: 16, color: "#282c34" }
   };
@@ -37,7 +102,7 @@ export function Graphic(props) {
   const defaultLayout = {
     margin: {
       t: props.position !== "first" ? 1 : 30,
-      r: 1,
+      r: 60,
       b: props.position !== "last" ? 1 : 20,
       l: 40,
     },
@@ -46,22 +111,31 @@ export function Graphic(props) {
     },
     paper_bgcolor: "#282c34",
     plot_bgcolor: "#282c34",
-    yaxis: {
+    yaxis1: {
       fixedrange: true,
-      linecolor: "#61dafb",
-      linewidth: 1,
-      mirror: true,
+      gridcolor: "#61dafb44",
+    },
+    yaxis2: {
+      fixedrange: true,
+      gridcolor: "#61dafb44",
+    },
+    yaxis3: {
+      fixedrange: true,
       gridcolor: "#61dafb44",
     },
     xaxis: {
-      linecolor: "61dafb",
-      linewidth: 1,
-      mirror: true,
       gridcolor: "#61dafb44",
       showticklabels: props.position === "" ? false : true,
       side: props.position !== "first" ? "bottom" : "top",
       autorange: false,
     },
+    grid: {
+      rows: 3,
+      columns: 1,
+      xside: props.position !== "first" ? "bottom" : "top",
+    },
+    shapes: defaultGridShape,
+    annotations: [graphTitleAnnotation],
   };
 
   const [layout, setLayout] = useState(defaultLayout);
@@ -72,14 +146,13 @@ export function Graphic(props) {
       : "graphic__wrapper_" + props.position;
 
   const setNewData = async () => {
-    if (!props.startTime || !props.endTime || !props.network || !props.station || !props.channel) {
+    if (!props.startTime || !props.endTime || !props.network || !props.station) {
       return;
     }
 
     const seisData = await getGraphicData(
       props.network,
       props.station,
-      props.channel,
       props.startTime,
       props.endTime
     );
@@ -89,25 +162,27 @@ export function Graphic(props) {
       return;
     }
 
-    const { x, y } = parseGraphicData(seisData, props.startTime, props.endTime);
+    const { channelNames, xByChannel, yByChannel } = parseGraphicData(seisData, props.startTime, props.endTime);
 
-    setData([
-      {
-        x: x,
-        y: y,
+    setData(xByChannel.map((_, i) => {
+      return {
+        x: xByChannel[i],
+        y: yByChannel[i],
+        name: channelNames[i],
+        yaxis: 'y' + (i + 1),
         type: "scatter",
         mode: "lines",
         hoverinfo: "none",
         marker: {
-          color: "#61dafb",
+          color: LINE_COLORS[i],
         },
-      },
-    ]);
+      };
+    }));
   };
 
   useEffect(() => {
     setNewData();
-  }, [props.startTime, props.endTime, props.channel, props.station, props.network]);
+  }, [props.startTime, props.endTime, props.station, props.network]);
 
   useEffect(() => {
     if (!props.waves) {
@@ -117,6 +192,7 @@ export function Graphic(props) {
     setLayout({
       ...layout,
       shapes: [
+        ...defaultGridShape,
         ...props.waves.map((wave) => {
           return {
             ...defaultSquareShape,
@@ -132,6 +208,7 @@ export function Graphic(props) {
         }),
       ],
       annotations: [
+        graphTitleAnnotation,
         ...props.waves.map((wave) => {
           return {
             ...defaultAnnotation,
@@ -197,6 +274,7 @@ export function Graphic(props) {
       layout={layout}
       config={{
         modeBarButtonsToRemove: [
+          "resetScale2d",
           "toImage",
           "zoom2d",
           "pan2d",

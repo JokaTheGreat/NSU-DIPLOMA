@@ -1,7 +1,7 @@
 import properties from "../../properties";
 
 export async function getStationsData() {
-    const url = properties.SERVER + "station/1/query?level=channel";
+    const url = properties.SERVER + "station/1/query";
 
     const response = await fetch(url);
     if (!response.ok) {

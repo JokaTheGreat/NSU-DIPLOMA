@@ -53,8 +53,7 @@ export default function App() {
             .filter(
               (wave) =>
                 wave.network === item.network &&
-                wave.station === item.station &&
-                wave.channel === item.channel
+                wave.station === item.station
             )
             .map((wave) => {
               return { phase: wave.phase, time: new Date(new Date(wave.time).getTime() - SERVER_TIME_OFFSET) };
@@ -68,7 +67,7 @@ export default function App() {
     setGraphicsData(
       stationsId.map((item, i) => {
         return {
-          key: item.network + item.station + item.channel,
+          key: item.network + item.station,
           ...item,
           position:
             i === 0 ? "first" : i === stationsId.length - 1 ? "last" : "",
@@ -103,7 +102,6 @@ export default function App() {
               id={item.key}
               network={item.network}
               station={item.station}
-              channel={item.channel}
               position={item.position}
               startTime={item.startTime}
               endTime={item.endTime}

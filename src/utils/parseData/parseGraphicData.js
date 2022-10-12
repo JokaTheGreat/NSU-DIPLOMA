@@ -1,19 +1,22 @@
 import * as seisplotjs from "seisplotjs";
 
-export function parseGraphicData(data, startTime, endTime) {
+export function parseGraphicData(data) {
     const dataRecords = seisplotjs.miniseed.parseDataRecords(data);
-    const seismogram = seisplotjs.miniseed.merge(dataRecords);
+    const seismogramByChannel = seisplotjs.miniseed.seismogramPerChannel(dataRecords);
 
     const filter = seisplotjs.filter.createChebyshevI(4, 0.5, seisplotjs.filter.LOW_PASS, 0, 1, 0.005);
-    const filteredSeismogram = seisplotjs.filter.applyFilter(filter, seismogram);
+    const filteredSeismogramByChannel = seismogramByChannel.map(item => seisplotjs.filter.applyFilter(filter, item));
 
-    const x = [];
-    const y = filteredSeismogram._segmentArray[0].y;
-    const step = (endTime - startTime) / y.length;
-
-    y.forEach((item, i) => {
-        x.push(new Date(Math.round(startTime.getTime() + step * i)));
+    const channelNames = filteredSeismogramByChannel.map(item => item.channelCode);
+    const xByChannel = [[], [], []];
+    const yByChannel = filteredSeismogramByChannel.map(item => item.y);
+    const stepByChannel = filteredSeismogramByChannel.map(item => (item._endTime._d - item._startTime._d) / item.y.length);
+    
+    yByChannel.forEach((item, i) => {
+        item.forEach((_, j) => {
+            xByChannel[i].push(new Date(Math.round(filteredSeismogramByChannel[i]._startTime._d.getTime() + stepByChannel[i] * j)));
+        })
     });
 
-    return { x, y };
+    return { channelNames, xByChannel, yByChannel };
 }

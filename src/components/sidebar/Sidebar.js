@@ -16,9 +16,9 @@ export function Sidebar({ onClickCallback }) {
     const data = await getEventData();
     if (!data) {
       alert("server has no event data");
-      return; 
+      return;
     }
-    
+
     setData(parseEventData(data));
   };
 

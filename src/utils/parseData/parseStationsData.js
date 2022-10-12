@@ -22,20 +22,11 @@ export function parseStationsData(data) {
             }
 
             const stationCode = station.getAttribute("code");
-            const channels = station.children;
 
-            for (let channel of channels) {
-                if (channel.nodeName !== "Channel") {
-                    continue;
-                }
-
-                const channelCode = channel.getAttribute("code");
-                stationsData.push({
-                    network: networkCode,
-                    station: stationCode,
-                    channel: channelCode,
-                });
-            }
+            stationsData.push({
+                network: networkCode,
+                station: stationCode,
+            });
         }
     }
 

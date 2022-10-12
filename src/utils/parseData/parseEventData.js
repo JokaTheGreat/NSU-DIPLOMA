@@ -23,15 +23,15 @@ export function parseEventData(data) {
                 time: time,
                 network: waveFormId.getAttribute("networkCode"),
                 station: waveFormId.getAttribute("stationCode"),
-                location: waveFormId.getAttribute("locationCode"),
-                channel: waveFormId.getAttribute("channelCode"),
             };
         });
+
+        const unicWaves = Array.from(new Set(waves.map(item => JSON.stringify(item)))).map(item => JSON.parse(item));
 
         eventsInfo.push({
             magnitude: magnitudes[i],
             time: time,
-            waves: waves,
+            waves: unicWaves,
         });
     }
 
