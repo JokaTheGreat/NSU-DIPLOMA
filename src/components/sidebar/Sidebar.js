@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import "./Sidebar.css";
 import { getEventData, parseEventData } from "../../utils";
 
+function parseTime(time) {
+  const timeArray = time.match(/\d{2}/g);
+
+  return `${timeArray[3]}.${timeArray[2]}.${timeArray[1]} ${timeArray[4]}:${timeArray[5]}`;
+}
+
 export function Sidebar({ onClickCallback }) {
   const [data, setData] = useState([]);
   const [selectedEventId, setSelectedEventId] = useState(-1);
@@ -38,7 +44,7 @@ export function Sidebar({ onClickCallback }) {
             onClick={() => setSelectedEventId(index)}
           >
             Magnitude: {item.magnitude} <br />
-            Date: {item.time}
+            Date: {parseTime(item.time)}
           </div>
         );
       })}

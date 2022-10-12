@@ -1,9 +1,3 @@
-function parseTime(time) {
-    const timeArray = time.match(/\d{2}/g);
-
-    return `${timeArray[3]}.${timeArray[2]}.${timeArray[1]} ${timeArray[4]}:${timeArray[5]}`;
-}
-
 export function parseEventData(data) {
     const eventsInfo = [];
     const xml = new DOMParser().parseFromString(data, "text/xml");
@@ -36,7 +30,7 @@ export function parseEventData(data) {
 
         eventsInfo.push({
             magnitude: magnitudes[i],
-            time: parseTime(time),
+            time: time,
             waves: waves,
         });
     }

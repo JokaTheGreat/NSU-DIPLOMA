@@ -85,7 +85,6 @@ export function Graphic(props) {
     );
 
     if (!seisData.byteLength) {
-      alert("server has no seis data");
       setData([]);
       return;
     }
