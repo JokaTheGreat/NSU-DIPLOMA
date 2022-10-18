@@ -1,20 +1,31 @@
 import * as seisplotjs from "seisplotjs";
+import * as fili from "fili";
 
 export function parseGraphicData(data) {
     const dataRecords = seisplotjs.miniseed.parseDataRecords(data);
     const seismogramByChannel = seisplotjs.miniseed.seismogramPerChannel(dataRecords);
 
-    const filter = seisplotjs.filter.createChebyshevI(4, 0.5, seisplotjs.filter.LOW_PASS, 0, 1, 0.005);
-    const filteredSeismogramByChannel = seismogramByChannel.map(item => seisplotjs.filter.applyFilter(filter, item));
+    const iirCalculator = new fili.CalcCascades();
+    const iirFilterCoeffs = iirCalculator.highpass({
+        order: 2,
+        characteristic: 'butterworth',
+        Fs: Math.round(1 / 0.005),
+        Fc: 1,
+    });
+    const iirFilter = new fili.IirFilter(iirFilterCoeffs);
 
-    const channelNames = filteredSeismogramByChannel.map(item => item.channelCode);
+    const filteredData = seismogramByChannel
+        .map(byChannel => byChannel.y.map(item => item - byChannel.y[0]))
+        .map(item => iirFilter.simulate(item));
+
+    const channelNames = seismogramByChannel.map(item => item.channelCode);
     const xByChannel = [[], [], []];
-    const yByChannel = filteredSeismogramByChannel.map(item => item.y);
-    const stepByChannel = filteredSeismogramByChannel.map(item => (item._endTime._d - item._startTime._d) / item.y.length);
-    
+    const yByChannel = filteredData;
+    const stepByChannel = seismogramByChannel.map(item => (item._endTime._d - item._startTime._d) / item.y.length);
+
     yByChannel.forEach((item, i) => {
         item.forEach((_, j) => {
-            xByChannel[i].push(new Date(Math.round(filteredSeismogramByChannel[i]._startTime._d.getTime() + stepByChannel[i] * j)));
+            xByChannel[i].push(new Date(Math.round(seismogramByChannel[i]._startTime._d.getTime() + stepByChannel[i] * j)));
         })
     });
 

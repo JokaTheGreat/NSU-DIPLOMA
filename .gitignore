@@ -24,3 +24,5 @@ yarn-error.log*
 
 # custom
 properties.js
+staticEvents.xml
+staticStations.xml
