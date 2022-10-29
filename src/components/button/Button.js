@@ -1,8 +1,8 @@
 import "./Button.css";
 
-export function Button() {
+export function Button({ onClick }) {
 
     return (
-        <div className="button">send data</div>
+        <div className="button" onClick={onClick}>send data</div>
     );
 }

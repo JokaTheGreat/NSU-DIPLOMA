@@ -19,6 +19,7 @@ export function parseEventData(data) {
             const waveFormId = pick.children[4];
 
             return {
+                pickId: pick.getAttribute("publicID"),
                 phase: phase,
                 time: time,
                 network: waveFormId.getAttribute("networkCode"),
@@ -29,6 +30,7 @@ export function parseEventData(data) {
         const unicWaves = Array.from(new Set(waves.map(item => JSON.stringify(item)))).map(item => JSON.parse(item));
 
         eventsInfo.push({
+            eventId: event.getAttribute("publicID"),
             magnitude: magnitudes[i],
             time: time,
             waves: unicWaves,

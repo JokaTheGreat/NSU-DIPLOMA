@@ -1,11 +1,24 @@
 import { useState, useEffect } from "react";
-import { Graphic, Sidebar, Button, Vadati } from "./components";
+import { Graphic, Sidebar, Button, Vadati as Wadati } from "./components";
 import "./App.css";
 import { getStationsData, parseStationsData } from "./utils";
 
 export default function App() {
   const [graphicsData, setGraphicsData] = useState([]);
+  const [picksData, setPicksData] = useState({});
   let stationsId = [];
+
+  const sendPickChanges = () => {
+    if (!Object.keys(picksData)?.length) {
+      return;
+    }
+
+    const query = `query?eventId=${picksData?.eventId}&picks=[` +
+      picksData?.picks.map((item, i) => `pickId=${item.pickId}&time=${item.time}` + (i !== picksData.picks.length - 1 ? "," : "")) +
+      ']';
+
+    alert(query);
+  };
 
   const onGraphicsResize = (xaxisRangeZero, xaxisRangeOne) => {
     setGraphicsData(
@@ -34,9 +47,23 @@ export default function App() {
         };
       })
     );
+
+    setPicksData({
+      ...picksData,
+      picks: picksData.picks.map((item, i) => {
+        if (graphicsData[i].key !== graphicKey) {
+          return item;
+        }
+
+        return {
+          ...item,
+          time: newTime,
+        };
+      }),
+    });
   };
 
-  const setEventGraphicsData = ({ time, waves }) => {
+  const setEventsData = ({ time, waves, eventId }) => {
     const MINUTE_MS = 60000;
     const SERVER_TIME_OFFSET = MINUTE_MS * 60 * 7;
     const startTime = new Date(new Date(time).getTime() - SERVER_TIME_OFFSET);
@@ -60,6 +87,15 @@ export default function App() {
             }),
         };
       })
+    );
+
+    setPicksData(
+      {
+        eventId: eventId,
+        picks: waves.map(item => {
+          return { pickId: item.pickId, time: item.time };
+        })
+      }
     );
   };
 
@@ -91,10 +127,10 @@ export default function App() {
     <div className="app">
       <header className="app__header">
         <h2 className="app__title">Seisgraphs: </h2>
-        <Button />
+        <Button onClick={sendPickChanges} />
       </header>
       <main className="app__content">
-        <Sidebar onClickCallback={setEventGraphicsData} />
+        <Sidebar onClickCallback={setEventsData} />
         <div className="app__graphics">
           {graphicsData.map(item =>
             <Graphic
@@ -113,7 +149,7 @@ export default function App() {
           )}
         </div>
       </main>
-      <Vadati
+      <Wadati
         times={graphicsData.map((item) => {
           return { startTime: item.startTime, waves: item.waves };
         })}
