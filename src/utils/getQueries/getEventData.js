@@ -1,7 +1,7 @@
-import properties from "../../properties";
+import { serverPath } from "../../properties";
 
 export async function getEventData() {
-    const url = properties.SERVER + "event/1/query?limit=30&includearrivals=true";
+    const url = serverPath + "event/1/query?limit=30&includearrivals=true";
 
     const response = await fetch(url);
     if (!response.ok) {

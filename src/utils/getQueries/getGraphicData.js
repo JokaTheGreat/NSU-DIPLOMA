@@ -1,8 +1,8 @@
-import properties from "../../properties";
+import { serverPath } from "../../properties";
 
 export async function getGraphicData(network, station, startTime, endTime) {
     const url =
-        properties.SERVER +
+        serverPath +
         `dataselect/1/query?` +
         `network=${network}&station=${station}` +
         `&starttime=${startTime.toISOString()}&endtime=${endTime.toISOString()}`;
