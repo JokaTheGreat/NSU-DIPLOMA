@@ -1,0 +1,14 @@
+.vadati-graph__container {
+    display: flex;
+    justify-content: center;
+}
+
+.vadati-graph {
+    width: 40%;
+}
+
+.vadati-graph::after {
+    content: "";
+    display: block;
+    padding-bottom: 80%;
+}
