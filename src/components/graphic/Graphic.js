@@ -6,20 +6,20 @@ import { getGraphicData, parseGraphicData } from "../../utils";
 export function Graphic(props) {
   const [data, setData] = useState([]);
 
-  const LINE_COLORS = ['#61dafb', '#227D22', '#BF2324'];
+  const LINE_COLORS = ["#61dafb", "#227D22", "#BF2324"];
 
   const defaultYGridShape = {
     line: { color: LINE_COLORS[0] },
-    xref: 'paper',
-    yref: 'paper',
+    xref: "paper",
+    yref: "paper",
     x0: 0,
     x1: 1,
   };
 
   const defaultXGridShape = {
     line: { color: LINE_COLORS[0] },
-    xref: 'paper',
-    yref: 'paper',
+    xref: "paper",
+    yref: "paper",
     y0: 0,
     y1: 1,
   };
@@ -88,7 +88,7 @@ export function Graphic(props) {
     font: {
       color: LINE_COLORS[0],
       size: 16,
-    }
+    },
   };
 
   const defaultAnnotation = {
@@ -96,7 +96,7 @@ export function Graphic(props) {
     yref: "paper",
     y: 1,
     showarrow: false,
-    font: { size: 16, color: "#282c34" }
+    font: { size: 16, color: "#282c34" },
   };
 
   const defaultLayout = {
@@ -146,7 +146,12 @@ export function Graphic(props) {
       : "graphic__wrapper_" + props.position;
 
   const setNewData = async () => {
-    if (!props.startTime || !props.endTime || !props.network || !props.station) {
+    if (
+      !props.startTime ||
+      !props.endTime ||
+      !props.network ||
+      !props.station
+    ) {
       return;
     }
 
@@ -162,22 +167,28 @@ export function Graphic(props) {
       return;
     }
 
-    const { channelNames, xByChannel, yByChannel } = parseGraphicData(seisData, props.startTime, props.endTime);
+    const { channelNames, xByChannel, yByChannel } = parseGraphicData(
+      seisData,
+      props.startTime,
+      props.endTime
+    );
 
-    setData(xByChannel.map((_, i) => {
-      return {
-        x: xByChannel[i],
-        y: yByChannel[i],
-        name: channelNames[i],
-        yaxis: 'y' + (i + 1),
-        type: "scatter",
-        mode: "lines",
-        hoverinfo: "none",
-        marker: {
-          color: LINE_COLORS[i],
-        },
-      };
-    }));
+    setData(
+      xByChannel.map((_, i) => {
+        return {
+          x: xByChannel[i],
+          y: yByChannel[i],
+          name: channelNames[i],
+          yaxis: "y" + (i + 1),
+          type: "scatter",
+          mode: "lines",
+          hoverinfo: "none",
+          marker: {
+            color: LINE_COLORS[i],
+          },
+        };
+      })
+    );
   };
 
   useEffect(() => {
@@ -215,8 +226,8 @@ export function Graphic(props) {
             x: wave.time,
             text: wave.phase,
           };
-        })
-      ]
+        }),
+      ],
     });
   }, [props.waves]);
 
@@ -254,7 +265,7 @@ export function Graphic(props) {
           return;
         }
 
-        if (typeof zeroPoint === 'number' && isFinite(zeroPoint)) {
+        if (typeof zeroPoint === "number" && isFinite(zeroPoint)) {
           props.resize(zeroPoint, firstPoint);
           return;
         }
