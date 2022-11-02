@@ -64,10 +64,10 @@ export default function App() {
   };
 
   const setEventsData = ({ time, waves, eventId }) => {
-    const MINUTE_MS = 60000;
-    const SERVER_TIME_OFFSET = MINUTE_MS * 60 * 7;
-    const startTime = new Date(new Date(time).getTime() - SERVER_TIME_OFFSET);
-    const endTime = new Date(startTime.getTime() + MINUTE_MS);
+    const HALF_MINUTE_MS = 30000;
+    const SERVER_TIME_OFFSET = HALF_MINUTE_MS * 2 * 60 * 7;
+    const startTime = new Date(new Date(time).getTime() - HALF_MINUTE_MS);
+    const endTime = new Date(new Date(time).getTime() + HALF_MINUTE_MS);
 
     setGraphicsData(
       graphicsData.map((item) => {
@@ -83,7 +83,7 @@ export default function App() {
                 wave.station === item.station
             )
             .map((wave) => {
-              return { phase: wave.phase, time: new Date(new Date(wave.time).getTime() - SERVER_TIME_OFFSET) };
+              return { phase: wave.phase, time: new Date(new Date(wave.time).getTime()) };
             }),
         };
       })
