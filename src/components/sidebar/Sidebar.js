@@ -31,7 +31,6 @@ export function Sidebar({ onClickCallback }) {
       return;
     }
 
-    console.log(data[selectedEventId]);
     onClickCallback(data[selectedEventId]);
   }, [selectedEventId]);
 

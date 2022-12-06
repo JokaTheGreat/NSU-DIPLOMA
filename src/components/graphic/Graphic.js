@@ -201,8 +201,6 @@ export function Graphic(props) {
       return;
     }
 
-    console.log(props.waves);
-
     setLayout({
       ...layout,
       shapes: [
@@ -253,11 +251,11 @@ export function Graphic(props) {
     <Plot
       onClick={(e) => {
         if (e.event.shiftKey && e.event.button === 0) {
-          props.changeWave(new Date(e.points[0].x), "P", props.id);
+          props.changeWave(new Date(e.points[0].x), "P", props.id, props.network, props.station);
         }
 
         if (e.event.ctrlKey && e.event.button === 0) {
-          props.changeWave(new Date(e.points[0].x), "S", props.id);
+          props.changeWave(new Date(e.points[0].x), "S", props.id, props.network, props.station);
         }
       }}
       onRelayout={(e) => {

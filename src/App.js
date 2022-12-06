@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Graphic, Sidebar, Button, Vadati as Wadati } from "./components";
 import "./App.css";
-import { getStationsData, parseStationsData } from "./utils";
+import { getStationsData, parseStationsData, generatePickId } from "./utils";
 
 export default function App() {
   const [graphicsData, setGraphicsData] = useState([]);
@@ -36,7 +36,7 @@ export default function App() {
     );
   };
 
-  const onChangeWave = (newTime, phase, graphicKey) => {
+  const onChangeWave = (newTime, phase, graphicKey, network, station) => {
     setGraphicsData(
       graphicsData.map((item) => {
         if (item.key !== graphicKey) {
@@ -46,32 +46,38 @@ export default function App() {
         return {
           ...item,
           waves: [
-            ...item.waves.filter((wave) => wave.phase !== phase),
+            ...(item.waves
+              ? item.waves.filter((wave) => wave.phase !== phase)
+              : []),
             {
               phase: phase,
               time: newTime,
-              pickId: item.waves.find((wave) => wave.phase === phase).pickId,
+              pickId: item?.waves.find((wave) => wave.phase === phase)
+                ? item.waves.find((wave) => wave.phase === phase).pickId
+                : generatePickId(phase, picksData.eventId, network, station),
+              network: network,
+              station: station,
             },
           ],
         };
       })
     );
 
-    const pickIdStart = graphicsData
-      .find((item) => item.key === graphicKey)
-      .waves.find((item) => item.phase === phase).pickId;
+    const graphicData = graphicsData.find((item) => item.key === graphicKey);
+    const pickId = graphicData?.waves.find((item) => item.phase === phase)
+      ? graphicData.waves.find((item) => item.phase === phase).pickId
+      : generatePickId(phase, picksData.eventId, network, station);
 
     setPicksData({
       eventId: picksData.eventId,
       picks: [
-        ...picksData.picks.filter(
-          (pick) =>
-            pick.pickIdStart !== pickIdStart || pick.pickIdEnd !== graphicKey
-        ),
+        ...picksData.picks.filter((pick) => pick.pickId !== pickId),
         {
           time: newTime,
-          pickIdStart: pickIdStart,
-          pickIdEnd: graphicKey,
+          pickId: pickId,
+          phase: phase,
+          network: network,
+          station: station,
         },
       ],
     });
@@ -100,6 +106,8 @@ export default function App() {
                 phase: wave.phase,
                 time: new Date(wave.time),
                 pickId: wave.pickId,
+                network: wave.network,
+                station: wave.station,
               };
             }),
         };

@@ -6,8 +6,8 @@ function isObjectEmpty(obj) {
   return true;
 }
 
-function pickIdWithoutStation(pickId) {
-  return pickId.slice(0, pickId.lastIndexOf("/") + 1);
+function pickIdWithoutChannel(pickId) {
+  return pickId.slice(0, pickId.lastIndexOf("."));
 }
 
 export function parseEventData(data) {
@@ -35,9 +35,8 @@ export function parseEventData(data) {
           return {};
         }
 
-        //Мб убрать network and station?
         return {
-          pickId: pickIdWithoutStation(pick.getAttribute("publicID")),
+          pickId: pickIdWithoutChannel(pick.getAttribute("publicID")),
           phase: phase,
           time: time,
           network: waveFormId.getAttribute("networkCode"),
