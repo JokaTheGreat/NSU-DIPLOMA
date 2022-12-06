@@ -183,9 +183,10 @@ export function Graphic(props) {
           type: "scatter",
           mode: "lines",
           hoverinfo: "none",
-          marker: {
+          line: {
             color: LINE_COLORS[i],
-          },
+            width: 1,
+          }
         };
       })
     );
@@ -196,9 +197,11 @@ export function Graphic(props) {
   }, [props.startTime, props.endTime, props.station, props.network]);
 
   useEffect(() => {
-    if (!props.waves) {
+    if (!props.waves || !data) {
       return;
     }
+
+    console.log(props.waves);
 
     setLayout({
       ...layout,
@@ -229,7 +232,7 @@ export function Graphic(props) {
         }),
       ],
     });
-  }, [props.waves]);
+  }, [props.waves, data]);
 
   const setRange = (newRange) => {
     setLayout({

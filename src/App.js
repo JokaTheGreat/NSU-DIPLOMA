@@ -13,11 +13,16 @@ export default function App() {
       return;
     }
 
-    const query = `query?eventId=${picksData?.eventId}&picks=[` +
-      picksData?.picks.map((item, i) => `pickId=${item.pickId}&time=${item.time}` + (i !== picksData.picks.length - 1 ? "," : "")) +
-      ']';
+    console.log(picksData?.picks);
+    console.log(picksData?.eventId);
 
-    alert(query);
+    fetch("http://84.237.89.72:8080/update_picks/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(picksData),
+    }).then((response) => console.log(response.status));
   };
 
   const onGraphicsResize = (xaxisRangeZero, xaxisRangeOne) => {
@@ -33,7 +38,7 @@ export default function App() {
 
   const onChangeWave = (newTime, phase, graphicKey) => {
     setGraphicsData(
-      graphicsData.map(item => {
+      graphicsData.map((item) => {
         if (item.key !== graphicKey) {
           return item;
         }
@@ -41,25 +46,34 @@ export default function App() {
         return {
           ...item,
           waves: [
-            ...item.waves.filter(wave => wave.phase !== phase),
-            { phase: phase, time: newTime }
+            ...item.waves.filter((wave) => wave.phase !== phase),
+            {
+              phase: phase,
+              time: newTime,
+              pickId: item.waves.find((wave) => wave.phase === phase).pickId,
+            },
           ],
         };
       })
     );
 
-    setPicksData({
-      ...picksData,
-      picks: picksData.picks.map((item, i) => {
-        if (graphicsData[i].key !== graphicKey) {
-          return item;
-        }
+    const pickIdStart = graphicsData
+      .find((item) => item.key === graphicKey)
+      .waves.find((item) => item.phase === phase).pickId;
 
-        return {
-          ...item,
+    setPicksData({
+      eventId: picksData.eventId,
+      picks: [
+        ...picksData.picks.filter(
+          (pick) =>
+            pick.pickIdStart !== pickIdStart || pick.pickIdEnd !== graphicKey
+        ),
+        {
           time: newTime,
-        };
-      }),
+          pickIdStart: pickIdStart,
+          pickIdEnd: graphicKey,
+        },
+      ],
     });
   };
 
@@ -79,24 +93,23 @@ export default function App() {
           waves: waves
             .filter(
               (wave) =>
-                wave.network === item.network &&
-                wave.station === item.station
+                wave.network === item.network && wave.station === item.station
             )
             .map((wave) => {
-              return { phase: wave.phase, time: new Date(new Date(wave.time).getTime()) };
+              return {
+                phase: wave.phase,
+                time: new Date(wave.time),
+                pickId: wave.pickId,
+              };
             }),
         };
       })
     );
 
-    setPicksData(
-      {
-        eventId: eventId,
-        picks: waves.map(item => {
-          return { pickId: item.pickId, time: item.time };
-        })
-      }
-    );
+    setPicksData({
+      eventId: eventId,
+      picks: [],
+    });
   };
 
   const setDefaultGraphicsData = () => {
@@ -132,7 +145,7 @@ export default function App() {
       <main className="app__content">
         <Sidebar onClickCallback={setEventsData} />
         <div className="app__graphics">
-          {graphicsData.map(item =>
+          {graphicsData.map((item) => (
             <Graphic
               key={item.key}
               id={item.key}
@@ -146,7 +159,7 @@ export default function App() {
               changeWave={onChangeWave}
               range={item.range}
             />
-          )}
+          ))}
         </div>
       </main>
       <Wadati

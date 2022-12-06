@@ -5,7 +5,6 @@ export function parseGraphicData(data) {
   const dataRecords = seisplotjs.miniseed.parseDataRecords(data);
   const seismogramByChannel =
     seisplotjs.miniseed.seismogramPerChannel(dataRecords);
-  console.log(seismogramByChannel[0].y);
 
   const iirCalculator = new fili.CalcCascades();
   const iirFilterCoeffs = iirCalculator.highpass({
