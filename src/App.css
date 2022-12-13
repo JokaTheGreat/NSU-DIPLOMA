@@ -1,23 +1,26 @@
 .app {
-    margin: 50px;
+  height: 100%;
 }
 
 .app__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
 }
 
 .app__title {
-    margin: 0;
+  margin: 0;
 }
 
 .app__content {
-    width: 100%;
-    display: flex;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .app__graphics {
-    width: 90%;
+  width: 100%;
 }

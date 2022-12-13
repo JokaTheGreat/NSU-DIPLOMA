@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { Graphic, Sidebar, Button, Vadati as Wadati } from "./components";
+import {
+  Graphic,
+  EventList,
+  Wadati,
+  FooterToolbar,
+  ModalWindow,
+} from "./components";
 import "./App.css";
 import { getStationsData, parseStationsData, generatePickId } from "./utils";
 
@@ -7,14 +13,25 @@ export default function App() {
   const [graphicsData, setGraphicsData] = useState([]);
   const [picksData, setPicksData] = useState({});
   let stationsId = [];
+  const [sendChangesButtonLoading, setSendChangesButtonLoading] =
+    useState(false);
+  const [eventListVisibility, setEventListVisibility] = useState(false);
+  const [wadatiChartVisibility, setWadatiChartVisibility] = useState(false);
+
+  const onEventListVisibilityChange = () => {
+    setEventListVisibility(!eventListVisibility);
+    setWadatiChartVisibility(false);
+  };
+  const onWadatiChartVisibilityChange = () => {
+    setWadatiChartVisibility(!wadatiChartVisibility);
+    setEventListVisibility(false);
+  };
 
   const sendPickChanges = () => {
-    if (!Object.keys(picksData)?.length) {
-      return;
-    }
-
     console.log(picksData?.picks);
     console.log(picksData?.eventId);
+
+    setSendChangesButtonLoading(true);
 
     fetch("http://84.237.89.72:8080/update_picks/", {
       method: "POST",
@@ -22,7 +39,14 @@ export default function App() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(picksData),
-    }).then((response) => console.log(response.status));
+    }).then((response) => {
+      console.log(response.status);
+      setSendChangesButtonLoading(false);
+      setPicksData({
+        eventId: picksData.eventId,
+        picks: [],
+      });
+    });
   };
 
   const onGraphicsResize = (xaxisRangeZero, xaxisRangeOne) => {
@@ -146,12 +170,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="app__header">
-        <h2 className="app__title">Seisgraphs: </h2>
-        <Button onClick={sendPickChanges} />
-      </header>
       <main className="app__content">
-        <Sidebar onClickCallback={setEventsData} />
         <div className="app__graphics">
           {graphicsData.map((item) => (
             <Graphic
@@ -169,12 +188,30 @@ export default function App() {
             />
           ))}
         </div>
+        <ModalWindow
+          visibility={eventListVisibility}
+          element={<EventList onClickCallback={setEventsData} />}
+        />
+        <ModalWindow
+          visibility={wadatiChartVisibility}
+          element={
+            <Wadati
+              times={graphicsData.map((item) => {
+                return { startTime: item.startTime, waves: item.waves };
+              })}
+            />
+          }
+        />
+        <FooterToolbar
+          wadatiChartVisibility={wadatiChartVisibility}
+          onWadatiChartVisibilityChange={onWadatiChartVisibilityChange}
+          eventListVisibility={eventListVisibility}
+          onEventListVisibilityChange={onEventListVisibilityChange}
+          sendUpdatePicksButtonVisibility={!!picksData?.picks?.length}
+          sendUpdatePicksButtonLoading={sendChangesButtonLoading}
+          onUpdatePicksButtonClick={sendPickChanges}
+        />
       </main>
-      <Wadati
-        times={graphicsData.map((item) => {
-          return { startTime: item.startTime, waves: item.waves };
-        })}
-      />
     </div>
   );
 }

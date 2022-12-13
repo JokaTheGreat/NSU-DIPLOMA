@@ -1,0 +1,13 @@
+.modal-window {
+  position: relative;
+}
+
+.modal-window_hidden {
+  display: none;
+}
+
+.modal-window__container {
+  position: absolute;
+  bottom: 60px;
+  left: 30px;
+}

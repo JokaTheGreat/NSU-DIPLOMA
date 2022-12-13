@@ -70,10 +70,10 @@ export function Graphic(props) {
     line: { color: "white" },
     yref: "paper",
     xsizemode: "pixel",
-    y0: 0.85,
+    y0: 0.9,
     y1: 1,
     x0: 0,
-    x1: 15,
+    x1: 12,
     opacity: 1,
   };
 
@@ -81,7 +81,7 @@ export function Graphic(props) {
     text: `${props.network}.${props.station}`,
     xref: "paper",
     yref: "paper",
-    x: 1.04,
+    x: 1.02,
     y: 0,
     textangle: "-90",
     showarrow: false,
@@ -94,9 +94,9 @@ export function Graphic(props) {
   const defaultAnnotation = {
     xanchor: "left",
     yref: "paper",
-    y: 1,
+    y: 1.06,
     showarrow: false,
-    font: { size: 16, color: "#282c34" },
+    font: { size: 12, color: "#282c34" },
   };
 
   const defaultLayout = {
@@ -186,7 +186,7 @@ export function Graphic(props) {
           line: {
             color: LINE_COLORS[i],
             width: 1,
-          }
+          },
         };
       })
     );
@@ -251,11 +251,23 @@ export function Graphic(props) {
     <Plot
       onClick={(e) => {
         if (e.event.shiftKey && e.event.button === 0) {
-          props.changeWave(new Date(e.points[0].x), "P", props.id, props.network, props.station);
+          props.changeWave(
+            new Date(e.points[0].x),
+            "P",
+            props.id,
+            props.network,
+            props.station
+          );
         }
 
         if (e.event.ctrlKey && e.event.button === 0) {
-          props.changeWave(new Date(e.points[0].x), "S", props.id, props.network, props.station);
+          props.changeWave(
+            new Date(e.points[0].x),
+            "S",
+            props.id,
+            props.network,
+            props.station
+          );
         }
       }}
       onRelayout={(e) => {

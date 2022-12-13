@@ -1,9 +1,10 @@
+import { Loader } from "../loader/Loader";
 import "./Button.css";
 
-export function Button({ onClick }) {
+export function Button({ onClick, title, visibility, isLoading }) {
   return (
-    <div className="button" onClick={onClick}>
-      send data
-    </div>
+    <button disabled={!visibility} className="button" onClick={onClick}>
+      {isLoading ? <Loader /> : title}
+    </button>
   );
 }

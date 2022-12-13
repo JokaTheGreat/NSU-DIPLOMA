@@ -1,0 +1,14 @@
+.toolbar {
+  position: relative;
+}
+
+.toolbar__container {
+  transform: translateY(-50%);
+  position: absolute;
+  padding: 0 30px 50px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  box-sizing: border-box;
+}
