@@ -107,7 +107,7 @@ export default function App() {
     });
   };
 
-  const setEventsData = ({ time, waves, eventId }) => {
+  const setEventsData = ({ time, picks, eventId }) => {
     const HALF_MINUTE_MS = 30000;
     const SERVER_TIME_OFFSET = HALF_MINUTE_MS * 2 * 60 * 7;
     const startTime = new Date(new Date(time).getTime() - HALF_MINUTE_MS);
@@ -120,7 +120,7 @@ export default function App() {
           startTime: startTime,
           endTime: endTime,
           range: [startTime, endTime],
-          waves: waves
+          waves: picks
             .filter(
               (wave) =>
                 wave.network === item.network && wave.station === item.station

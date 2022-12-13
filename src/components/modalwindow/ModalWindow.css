@@ -1,5 +1,6 @@
 .modal-window {
-  position: relative;
+  position: fixed;
+  bottom: 60px;
 }
 
 .modal-window_hidden {
@@ -8,6 +9,6 @@
 
 .modal-window__container {
   position: absolute;
-  bottom: 60px;
+  bottom: 40px;
   left: 30px;
 }

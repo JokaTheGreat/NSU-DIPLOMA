@@ -1,34 +1,19 @@
+const parseNetworks = (xml) => Array.from(xml.getElementsByTagName("Network"));
+const parseStations = (network) =>
+  Array.from(network.getElementsByTagName("Station"));
+
 export function parseStationsData(data) {
-    const stationsData = [];
+  const xml = new DOMParser().parseFromString(data, "text/xml");
+  const networks = parseNetworks(xml);
 
-    const xml = new DOMParser().parseFromString(data, "text/xml");
-    const networks = xml.getElementsByTagName("Network");
-
-    for (let network of networks) {
-        if (network.nodeName !== "Network") {
-            continue;
-        }
-
-        const networkCode = network.getAttribute("code");
-        if (networkCode !== "KA") {
-            continue;
-        }
-
-        const stations = network.children;
-
-        for (let station of stations) {
-            if (station.nodeName !== "Station") {
-                continue;
-            }
-
-            const stationCode = station.getAttribute("code");
-
-            stationsData.push({
-                network: networkCode,
-                station: stationCode,
-            });
-        }
-    }
-
-    return stationsData;
+  return networks
+    .map((network) =>
+      network.getAttribute("code") !== "KA" //только в сети KA пока есть данные
+        ? []
+        : parseStations(network).map((station) => ({
+            network: network.getAttribute("code"),
+            station: station.getAttribute("code"),
+          }))
+    )
+    .flat();
 }
