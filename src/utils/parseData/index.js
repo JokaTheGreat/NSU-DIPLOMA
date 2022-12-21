@@ -4,7 +4,7 @@ import {
   parseEventTime,
   parseEventPicks,
 } from "./parseevent";
-import { parseGraphicData } from "./parseGraphicData";
+import { parseChartData } from "./parseChartData";
 import { parseStationsData } from "./parseStationsData";
 
 export {
@@ -12,6 +12,6 @@ export {
   parseEventMagnitude,
   parseEventTime,
   parseEventPicks,
-  parseGraphicData,
+  parseChartData,
   parseStationsData,
 };

@@ -8,16 +8,18 @@ import {
   parseEventMagnitude,
   parseEventTime,
   parseEventPicks,
-  parseGraphicData,
+  parseChartData,
   parseStationsData,
 } from "./parsedata";
 import { Pick, Event } from "./objectconstructors";
+import { filterData } from "./filterData";
+import { filterInstance } from "./Filter";
 
 export {
   getGraphicData,
   getStationsData,
   getEventData,
-  parseGraphicData,
+  parseChartData,
   parseStationsData,
   parseEventData,
   parseEventMagnitude,
@@ -27,4 +29,6 @@ export {
   formatTime,
   Pick,
   Event,
+  filterData,
+  filterInstance,
 };

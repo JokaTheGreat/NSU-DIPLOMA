@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./Graphic.css";
 import Plot from "react-plotly.js";
-import { getGraphicData, parseGraphicData } from "../../utils";
+import { getGraphicData, parseChartData } from "../../utils";
 
 export function Graphic(props) {
   const [data, setData] = useState([]);
@@ -167,11 +167,7 @@ export function Graphic(props) {
       return;
     }
 
-    const { channelNames, xByChannel, yByChannel } = parseGraphicData(
-      seisData,
-      props.startTime,
-      props.endTime
-    );
+    const { channelNames, xByChannel, yByChannel } = parseChartData(seisData);
 
     setData(
       xByChannel.map((_, i) => {
