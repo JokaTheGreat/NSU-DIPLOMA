@@ -3,17 +3,8 @@ import Plot from "react-plotly.js";
 import "./Wadati.css";
 
 export function Wadati({ times }) {
-  const [plotData, setPlotData] = useState([]);
-
-  const xyData = {
-    x: [0, 100],
-    y: [0, 100],
-    type: "scatter",
-    mode: "lines",
-    name: "x=y",
-    marker: { color: "#61dafb88" },
-    line: { dash: "dashdot" },
-  };
+  const [chartData, setChartData] = useState({});
+  const [approxData, setApproxData] = useState({});
 
   const defaultLayout = {
     margin: {
@@ -37,6 +28,7 @@ export function Wadati({ times }) {
       mirror: true,
       gridcolor: "#61dafb44",
     },
+    showlegend: false,
   };
 
   useEffect(() => {
@@ -55,20 +47,58 @@ export function Wadati({ times }) {
         };
       });
 
-    setPlotData([
-      {
-        x: coords.map((item) => item.x),
-        y: coords.map((item) => item.y),
-        type: "scatter",
-        mode: "markers",
-        name: "waves",
-        marker: { color: "#61dafb" },
-      },
-      {
-        ...xyData,
-      },
-    ]);
+    setChartData({
+      x: coords.map((item) => item.x),
+      y: coords.map((item) => item.y),
+      type: "scatter",
+      mode: "markers",
+      name: "waves",
+      marker: { color: "#61dafb" },
+    });
   }, [times]);
+
+  useEffect(() => {
+    if (!chartData?.x?.length) {
+      return;
+    }
+
+    const { sumX, sumX2, sumY, sumXY } = chartData.x.reduce(
+      (acc, currentValue, index) => {
+        const sumX = acc.sumX + currentValue;
+        const sumX2 = acc.sumX2 + currentValue * currentValue;
+        const sumY = acc.sumY + chartData.y[index];
+        const sumXY = acc.sumXY + currentValue * chartData.y[index];
+
+        return { sumX, sumX2, sumY, sumXY };
+      },
+      { sumX: 0, sumX2: 0, sumY: 0, sumXY: 0 }
+    );
+
+    const a =
+      (chartData.x.length * sumXY - sumX * sumY) /
+      (chartData.x.length * sumX2 - sumX * sumX);
+
+    const b = (sumY - a * sumX) / chartData.x.length;
+
+    const minX = Math.min(...chartData.x);
+    const maxX = Math.max(...chartData.x);
+
+    const x0 = minX - 2;
+    const x1 = maxX + 2;
+
+    const y0 = a * x0 + b;
+    const y1 = a * x1 + b;
+
+    setApproxData({
+      x: [x0, x1],
+      y: [y0, y1],
+      type: "scatter",
+      mode: "lines",
+      name: "approximated",
+      marker: { color: "#61dafb88" },
+      line: { dash: "dashdot" },
+    });
+  }, [chartData]);
 
   return (
     <div className="wadati-chart">
@@ -76,7 +106,7 @@ export function Wadati({ times }) {
       <Plot
         className="wadati-chart__container"
         layout={defaultLayout}
-        data={plotData}
+        data={[chartData, approxData]}
         config={{
           modeBarButtonsToRemove: [
             "toImage",
