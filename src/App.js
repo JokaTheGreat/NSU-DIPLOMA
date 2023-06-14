@@ -33,7 +33,7 @@ export default function App() {
 
     setSendChangesButtonLoading(true);
 
-    fetch("http://84.237.89.72:8080/update_picks/", {
+    fetch("http://84.237.89.72:8080/update_picks/update", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

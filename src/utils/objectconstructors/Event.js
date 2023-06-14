@@ -2,7 +2,7 @@ import {
   parseEventMagnitude,
   parseEventPicks,
   parseEventTime,
-} from "../parsedata";
+} from "../parseData";
 
 export class Event {
   constructor(event) {

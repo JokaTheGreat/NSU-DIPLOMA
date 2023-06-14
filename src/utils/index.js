@@ -10,7 +10,7 @@ import {
   parseEventPicks,
   parseChartData,
   parseStationsData,
-} from "./parsedata";
+} from "./parseData";
 import { Pick, Event } from "./objectconstructors";
 import { filterData } from "./filterData";
 import { filterInstance } from "./Filter";
